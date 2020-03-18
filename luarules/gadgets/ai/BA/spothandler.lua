@@ -10,7 +10,25 @@ function MetalSpotHandler:internalName()
 end
 
 function MetalSpotHandler:Init()
-	self.spots = self.game.map:GetMetalSpots()
+	spots = self.game.map:GetMetalSpots()
+	if #spots > 3000 then
+		newspots = {}
+		decimation = math.floor(#spots / 100)
+		Spring.Echo("Decimation: "..decimation)
+		counter = 0
+		for i, spot in pairs(spots) do
+			Spring.Echo("counter "..counter);
+			if counter == decimation then
+				Spring.Echo("equals")
+				counter = 0
+				table.insert(newspots, spot)
+			end
+			counter = counter + 1
+		end
+		self.spots = newspots
+	else
+		self.spots = spots
+	end
 end
 
 ------------------------------------------------------------
