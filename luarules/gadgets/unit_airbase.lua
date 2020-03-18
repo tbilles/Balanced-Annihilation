@@ -597,7 +597,7 @@ function gadget:DefaultCommand()
    end
 
    local targetDefID = spGetUnitDefID(targetID)
-   if not (UnitDefs[targetDefID].isAirBase or airbaseDefIDs[targetDefID]) then
+   if not (airbaseDefIDs[targetDefID]) then
       return false
    end
 
