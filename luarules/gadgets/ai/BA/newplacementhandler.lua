@@ -90,7 +90,7 @@ function NewPlacementHandler:GetClosestBuildPosition(x, z, cellsize, buildtype)
 	local pos
 	buildable = self:GetIDBuildable(ID, cellsize, buildtype)
 	if buildable == true then bestID = ID end
-	while buildable ~= true and attempt <= 10200 do
+	while buildable ~= true and attempt < 10200 do
 		attempt = attempt + 1
 		v = spiral[attempt][1]
 		h = spiral[attempt][2]
