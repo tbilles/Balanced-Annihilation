@@ -1069,7 +1069,7 @@ function CorWindOrSolar(tqb, ai, unit)
     local avgWind = (Game.windMin + Game.windMax)/2
 	if ai and ai.id then
 		if not (UDC(ai.id, UDN.armfus.id) + UDC(ai.id, UDN.corfus.id) > 1) then
-			if curWind > 7 then
+			if curWind > 7 and avgWind > 8 then
 				return "corwin"
 			else
 				if income(ai, "energy") > 200 and income(ai, "metal") > 15 and (UUDC("armadvsol", ai.id) + UUDC("coradvsol", ai.id)) < 2 then
@@ -1479,7 +1479,7 @@ function ArmWindOrSolar(tqb, ai, unit)
     local avgWind = (Game.windMin + Game.windMax)/2
 	if ai and ai.id then
 		if not (UDC(ai.id, UDN.armfus.id) + UDC(ai.id, UDN.corfus.id) > 1) then
-			if curWind > 7 then
+			if curWind > 7 and avgWind > 8 then
 				return "armwin"
 			else
 				
