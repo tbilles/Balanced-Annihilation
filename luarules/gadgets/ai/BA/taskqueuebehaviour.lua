@@ -46,6 +46,7 @@ function TaskQueueBehaviour:OwnerIdle(unit)
 		return
 	end
 	self.countdown = 0
+	self:Log("Idle")
 	self:OnToNextTask()
 end
 
@@ -84,6 +85,7 @@ function TaskQueueBehaviour:CanQueueNextTask()
 	local notprogressing = self.progress ~= true	-- Not already progressing in queue
 	local curqueuelength = #(Spring.GetCommandQueue(unitID,2))
 	local building = Spring.GetUnitIsBuilding(unitID)	-- we check cur buildspeed/power ~= 0
+	self:Log("CanQueueTask? " .. tostring(curqueuelength <= 1) .. "," .. tostring(building) .. "," .. tostring(notprogressing) .. "," .. tostring(notfactory))
 	if curqueuelength <= 1 and building and notprogressing and notfactory then
 		return true
 	else
@@ -142,10 +144,14 @@ function TaskQueueBehaviour:Update()
 	if f%15 == self.unit:Internal().id%15 then
 		if self:CanQueueNextTask() then
 			self.progress = true
+			self:Log("Update, queuing next task")
+		else
+			self:Log("Update, cannot queue next task")
 		end
 	end
 	if self.progress == true then
 		if self.countdown > 14 then
+			self:Log("Update->ProgressQueue")
 			self:ProgressQueue()
 		else
 			if self.countdown == nil then
@@ -161,6 +167,7 @@ TaskQueueWakeup = class(function(a,tqb)
 	a.tqb = tqb
 end)
 function TaskQueueWakeup:wakeup()
+	self:Log("wakeup->ProgressQueue")
 	self.tqb:ProgressQueue()
 end
 
@@ -168,13 +175,16 @@ function TaskQueueBehaviour:ProgressQueue()
 	unit = self.unit:Internal()
 	if self:IsWaitingForPosition() then
 		self:DebugPoint("waiting")
+		self:Log("ProgressQueue: waiting for position")
 		return
 	end
 	if self.queue == nil then
 		if self:HasQueues() then
 			self.queue = self:GetQueue()
+			self:Log("ProgressQueue: getting queue")
 		else
 			self:DebugPoint("nothing")
+			self:Log("ProgressQueue: has no queue")
 			return
 		end
 	end
@@ -185,38 +195,47 @@ function TaskQueueBehaviour:ProgressQueue()
 		self.game:SendToConsole("Warning: A "..self.name.." unit, has an empty task queue")
 		self:OnToNextTask()
 		self:DebugPoint("nothing")
+		self:Log("ProgressQueue: getqueue returned null")
 		return
 	end
 	local idx, val = next(self.queue,self.idx)
 	self.idx = idx
 	if idx == nil then
 		self:DebugPoint("nothing")
+		self:Log("ProgressQueue: queue empty, get another queue")
 		self.queue = self:GetQueue(name)
 		self:OnToNextTask()
 		return
 	end
 
+	self:Log("ProgressQueue: queue type: "..type(val))
 	local utype = nil
 	local value = val
 	if type(val) == "function" then
+		self:Log("ProgressQueue: resolving function task")
 		value = val(self, self.ai, unit)
 	end
 	if value == "next" then
 		self:DebugPoint("nothing")
+		self:Log("ProgressQueue: next")
 		self:OnToNextTask()
 		return
 	end
 	if type(val) == "table" then
+		self:Log("ProgressQueue: val table")
 		self:HandleActionTask( value )
 		return
 	end
 	if type(value) == "table" then
+		self:Log("ProgressQueue: value table")
 		self:HandleActionTask( value )
 		return
 	end
 
+	self:Log("ProgressQueue: try to build: " .. value)
 	success = self:TryToBuild( value )
 	if success ~= true then
+		self:Log("Unsuccessful build")
 		self:DebugPoint("nothing")
 		self:OnToNextTask()
 		return
@@ -246,8 +265,15 @@ function TaskQueueBehaviour:TryToBuild( unit_name, pos )
 	return success
 end
 
+function TaskQueueBehaviour:Log(msg)
+	if self.ai.id == 1 and self.name == "corcom" then
+		Spring.Echo(msg)
+	end
+end
+
 function TaskQueueBehaviour:HandleActionTask( task )
 	local action = task.action
+	self:Log("HandleActionTask: " .. action)
 	if action == "nexttask" then
 		self:OnToNextTask()
 	elseif action == "wait" then
@@ -256,7 +282,7 @@ function TaskQueueBehaviour:HandleActionTask( task )
 		end
 		t = TaskQueueWakeup(self)
 		tqb = self
-		self.ai.sleep:Wait({ wakeup = function() tqb:ProgressQueue() end, },task.frames)
+		self.ai.sleep:Wait({ wakeup = function() tqb:Log("wakeup lambda -> prgoressqueue"); tqb:ProgressQueue() end, },task.frames)
 	elseif action == "command" then
 		if task.params then
 			self.unit:Internal():ExecuteCustomCommand(task.params.cmdID, task.params.cmdParams, task.params.cmdOptions)
@@ -359,6 +385,7 @@ function TaskQueueBehaviour:BuildGeo(utype)
 	p = unit:GetPosition()
 	p = self.ai.geospothandler:ClosestFreeGeo(utype,p,2500)
 	if p == nil or self.game.map:CanBuildHere(utype,p) ~= true then
+		self:Log("Geo")
 		self:OnToNextTask()
 		return false
 	end
@@ -388,6 +415,7 @@ function TaskQueueBehaviour:BuildExtractor(utype)
 			return true
 		end
 	elseif not p then
+		self:Log("Extractor")
 		self:OnToNextTask()
 		return false
 	end
@@ -396,6 +424,7 @@ function TaskQueueBehaviour:BuildExtractor(utype)
 end
 
 function TaskQueueBehaviour:OnToNextTask()
+	self:Log("OntoNextTask")
 	self.progress = true
 end
 
@@ -408,12 +437,14 @@ function TaskQueueBehaviour:OnBuildingPlacementSuccess( job, pos, facing )
 	local p = dump( pos )
 	local success self.unit:Internal():Build( job.unittype, pos, facing,{"shift"})
 	if success == false then
+		self:Log("Building unsuccessful after successful placement")
 		self:OnToNextTask()
 	end
 end
 
 function TaskQueueBehaviour:OnBuildingPlacementFailure( job )
 	self:StopWaitingForPosition()
+	self:Log("Building placement failure")
 	self:OnToNextTask()
 end
 
