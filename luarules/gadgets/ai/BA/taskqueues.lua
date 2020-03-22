@@ -620,6 +620,11 @@ function curstorperc(ai, resource) -- Returns % of storage for resource in real 
 	return ((c / s) * 100)
 end
 
+function curstor(ai, resource) -- Returns storage for resource in real time
+	local r = ai.aimodehandler.resources[resource]
+	return r.c
+end
+
 function timetostore(ai, resource, amount, btime) -- Returns time to gather necessary resource amount in real time
 	local r = ai.aimodehandler.resources[resource]
 	local c, s, p, i, e = r.c, r.s, r.p, r.i, r.e
@@ -1064,6 +1069,24 @@ airlab = {
 --------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------
 
+function CorWindOrSolarComm(tqb, ai, unit)
+    local _,_,_,curWind = Spring.GetWind()
+    local avgWind = (Game.windMin + Game.windMax)/2
+	if ai and ai.id then
+		if not (UDC(ai.id, UDN.armfus.id) + UDC(ai.id, UDN.corfus.id) > 1) then
+			if curWind > 7 and avgWind > 8 then
+				return "corwin"
+			else
+				return "corsolar"
+			end
+		else
+			return skip	
+		end
+	else
+		return "corsolar"
+	end
+end
+
 function CorWindOrSolar(tqb, ai, unit)
     local _,_,_,curWind = Spring.GetWind()
     local avgWind = (Game.windMin + Game.windMax)/2
@@ -1094,19 +1117,47 @@ function CorNanoT(tqb, ai, unit)
 	end
 end
 
+function CorEnComm( tqb, ai, unit )	
+	local currentstoredenergy = curstorperc(ai, "energy")
+	local energyneeded = currentstoredenergy < 20 and curstor(ai, "metal") > 150
+	Spring.Echo("CorEnComm...")
+	if (income(ai, "energy") < ai.aimodehandler.eincomelimiterpretech2) and energyneeded then
+		Spring.Echo("CorEnComm building energy generator")
+		return (CorWindOrSolarComm(tqb, ai, unit))
+	elseif (income(ai, "energy") < ai.aimodehandler.eincomelimiterposttech2) and energyneeded and GetFinishedAdvancedLabs(tqb, ai, unit) >= 1 then
+		Spring.Echo("CorEnComm building energy generator 2")
+		return (CorWindOrSolarComm(tqb, ai, unit))
+	elseif Spring.GetTeamRulesParam(ai.id, "mmCapacity") < income(ai, "energy") and curstorperc(ai, "energy") > 70 then
+		Spring.Echo("CorEnComm building metal maker")
+		return "cormakr"
+	else
+		Spring.Echo("CorEnComm skip")
+		return skip
+	end
+end
+
 function CorEnT1( tqb, ai, unit )	
 	local countEstore = UDC(ai.id, UDN.corestor.id) + UDC(ai.id, UDN.armestor.id)
-	if (income(ai, "energy") < ai.aimodehandler.eincomelimiterpretech2) and realincome(ai, "energy") < 0 and curstorperc(ai, "energy") < 80 then
-        return (CorWindOrSolar(tqb, ai, unit))
-	elseif (income(ai, "energy") < ai.aimodehandler.eincomelimiterposttech2) and realincome(ai, "energy") < 0 and curstorperc(ai, "energy") < 80 and GetFinishedAdvancedLabs(tqb, ai, unit) >= 1 then
+	local realeincome = realincome(ai, "energy")
+	local currentstoredenergy = curstorperc(ai, "energy")
+	local energyneeded = (currentstoredenergy < 20 and curstor(ai, "metal") > 150) or (realeincome < 0 and currentstoredenergy < 80)
+	if (income(ai, "energy") < ai.aimodehandler.eincomelimiterpretech2) and energyneeded then
+		Spring.Echo("EnT1 building energy generator")
 		return (CorWindOrSolar(tqb, ai, unit))
-    elseif Spring.GetTeamRulesParam(ai.id, "mmCapacity") < income(ai, "energy") and curstorperc(ai, "energy") > 30 then
-        return "cormakr"
+	elseif (income(ai, "energy") < ai.aimodehandler.eincomelimiterposttech2) and realeincome < 0 and curstorperc(ai, "energy") < 80 and GetFinishedAdvancedLabs(tqb, ai, unit) >= 1 then
+		Spring.Echo("EnT1 building energy generator 2")
+		return (CorWindOrSolar(tqb, ai, unit))
+	elseif Spring.GetTeamRulesParam(ai.id, "mmCapacity") < income(ai, "energy") and curstorperc(ai, "energy") > 70 then
+		Spring.Echo("EnT1 building metal maker")
+		return "cormakr"
 	elseif storabletime(ai, "energy") < 8 and curstorperc(ai, "energy") > 80 then
+		Spring.Echo("EnT1 building energystorage")
 		return "corestor"
 	elseif storabletime(ai, "metal") < 8 or curstorperc(ai, "metal") > 90 then
+		Spring.Echo("EnT1 building metalstorage")
 		return "cormstor"
 	else
+		Spring.Echo("skip")
 		return skip
 	end
 end
@@ -1328,6 +1379,13 @@ local corcommanderfirst = {
 	CorWindOrSolar,
 	ShortDefense,
 	CorRad,
+}
+
+local corcommanderafterlab = {
+	assistaround,
+	CorEnComm,
+	RequestedAction,
+	CorExpandRandomLab,
 }
 
 local cort1eco = {
@@ -1833,7 +1891,7 @@ local function corcommander(tqb, ai, unit)
 	ai.t1priorityrate = ai.t1priorityrate or ai.aimodehandler.t1ratepret2
 	local countBasicFacs = UDC(ai.id, UDN.corvp.id) + UDC(ai.id, UDN.corlab.id) + UDC(ai.id, UDN.corap.id) + UDC(ai.id, UDN.corhp.id)
 	if GetLabs(tqb,ai,unit) > 0 then
-		return corassistqueue
+		return corcommanderafterlab
 	elseif ai.engineerfirst then
 		return {CorStarterLabT1}
 	else
