@@ -22,7 +22,7 @@ function AiModeHandler:Init()
 	end
 	math.randomseed( os.time() + self.ai.id )
 	math.random(); math.random(); math.random()
-	self:PickASide(math.random(1,2))
+	--self:PickASide(math.random(1,2))
 	self:CreateWantedTechTree(math.random(1,12),math.random(1,12))
 	--local count = #Spring.GetTeamList(self.ai.allyId)
 	--if count and count > 1 then
