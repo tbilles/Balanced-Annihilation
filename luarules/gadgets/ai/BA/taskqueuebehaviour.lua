@@ -283,7 +283,7 @@ function TaskQueueBehaviour:HandleActionTask( task )
 		newpos.x = upos.x + task.position.x
 		newpos.y = upos.y + task.position.y
 		newpos.z = upos.z + task.position.z
-		self.unit:Internal():MoveAndFire(newpos)
+		self.unit:Internal():MoveAndFire(newpos, {"shift"})
 	elseif action == "patrol" then
 		self.unit:Internal():MoveAndPatrol(task.position)
 		self.active = false

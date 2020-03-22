@@ -191,8 +191,9 @@ function ShardUnit:AttackMove(p)
 	return self:MoveAndFire(p)
 end
 
-function ShardUnit:MoveAndFire(p)
-	Spring.GiveOrderToUnit( self.id, CMD.FIGHT, { p.x, p.y, p.z }, {} )
+function ShardUnit:MoveAndFire(p, modifiers)
+	modifiers = modifiers or {}
+	Spring.GiveOrderToUnit( self.id, CMD.FIGHT, { p.x, p.y, p.z }, modifiers )
 	return true
 end
 
