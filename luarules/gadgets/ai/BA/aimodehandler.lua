@@ -17,8 +17,8 @@ local modenames = {"balanced", "t1", "tech"}
 function AiModeHandler:Init()
 	self.resources = {metal = {}, energy = {}}
 	for res, tab in pairs(self.resources) do
-		local c, s, p, i, e = Spring.GetTeamResources(self.ai.id, res)
-		self.resources[res] = {c = c, s = s, p = p, i = i, e = e}
+		local currentlevel, storage, pull, income, expense = Spring.GetTeamResources(self.ai.id, res)
+		self.resources[res] = {c = currentlevel, s = storage, p = pull, i = income, e = expense}
 	end
 	math.randomseed( os.time() + self.ai.id )
 	math.random(); math.random(); math.random()
