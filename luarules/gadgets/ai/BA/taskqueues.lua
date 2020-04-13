@@ -126,6 +126,11 @@ function Builder(tqb, ai, unit)
 	if possibilities[unit:Name()]["builder"][1] then
 		local unitName = AllowCon(tqb, ai, unit, possibilities[unit:Name()]["builder"][1])
 		if unitName then
+			local udid = UDN[unitName].id
+			local sametypecon = Spring.GetTeamUnitsByDefs(ai.id, udid)
+			if #sametypecon < 2 then
+				return unitName
+			end
 			unitName = ResourceCheck(tqb, ai, unit, unitName)
 			if unitName then
 				return unitName
