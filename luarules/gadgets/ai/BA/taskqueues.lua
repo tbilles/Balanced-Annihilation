@@ -101,6 +101,53 @@ function GetTechLevelRate(ai, unit, name)
 	return rate
 end
 
+function AssistAround(tqb, ai, unit)
+	local pos = unit:GetPosition()
+	local nearbyunits = Spring.GetUnitsInSphere(pos.x, pos.y, pos.z, 600)
+	local building_under_construction = {}
+	local moving_under_construction = {}
+	local damaged = {}
+	for _,nearbyunit in ipairs(nearbyunits) do
+		local health, maxhealth, _, _, buildprogress = Spring.GetUnitHealth(nearbyunit)
+		if buildprogress < 1 then
+			local shardunit = Shard:shardify_unit(nearbyunit)
+			local building = shardunit:Type():CanMove()
+			if building then
+				table.insert(building_under_construction, shardunit)
+			else
+				table.insert(moving_under_construction, shardunit)
+			end
+		elseif health < maxhealth then
+			table.insert(damaged, Shard:shardify_unit(nearbyunit))
+		end
+	end
+	local best
+	local current_build_target = Spring.GetUnitIsBuilding(unit:ID())
+	Spring.Echo("Considering " .. #underconstruction .. " target that is being built")
+	for _, target in ipairs(underconstruction) do
+		Spring.Echo("Considering target " .. tostring(target:ID()))
+		local skip_target = current_build_target == target:ID()
+		if not skip_target then
+			local unittype = target:Type()
+			local isbuilding = not unittype:CanMove()
+			local targetingpriority = unittype:TargetingPriority()
+			if best == nil or (isbuilding and not best.isbuilding) or (targetingpriority > best.targetingpriority) then
+				Spring.Echo("best so far")
+				best = { unit = target, isbuilding = isbuilding, targetingpriority = targetingpriority }
+			end
+		end
+	end
+	if best ~= nil then
+		Spring.Echo("Repair " .. tostring(best.unit:ID()) .. ", while building: " .. tostring(current_build_target))
+		return { action = "repair", target = best.unit }
+	end
+	if #damaged >= 1 then
+		Spring.Echo("Repair damaged")
+		return { action = "repair", target = damaged[1] }
+	end
+	return skip
+end
+
 function ResourceCheck(tqb, ai, unit, name)
 	local defs = UnitDefs[UnitDefNames[name].id]
 	local techlevelRate = GetTechLevelRate(ai, unit, name)
@@ -1132,7 +1179,7 @@ function CorEnComm( tqb, ai, unit )
 	elseif (income(ai, "energy") < ai.aimodehandler.eincomelimiterposttech2) and energyneeded and GetFinishedAdvancedLabs(tqb, ai, unit) >= 1 then
 		Spring.Echo("CorEnComm building energy generator 2")
 		return (CorWindOrSolarComm(tqb, ai, unit))
-	elseif Spring.GetTeamRulesParam(ai.id, "mmCapacity") < income(ai, "energy") and curstorperc(ai, "energy") > 70 then
+	elseif income(ai, "metal") < 40 and Spring.GetTeamRulesParam(ai.id, "mmCapacity") < income(ai, "energy") and curstorperc(ai, "energy") > 80 then
 		Spring.Echo("CorEnComm building metal maker")
 		return "cormakr"
 	else
@@ -1221,14 +1268,17 @@ function CorMexT1( tqb, ai, unit )
 end
 
 function CorStarterLabT1(tqb, ai, unit)
-	if ai.aimodehandler.t2rusht1reclaim == true and AllAdvancedLabs(tqb, ai, unit) > 0 then return RequestedAction(tqb,ai,unit) end
+	if ai.aimodehandler.t2rusht1reclaim == true and AllAdvancedLabs(tqb, ai, unit) > 0 then
+		--return RequestedAction(tqb,ai,unit)
+		return skip
+	end
 	local countStarterFacs = UDC(ai.id, UDN.corvp.id) + UDC(ai.id, UDN.corlab.id) + UDC(ai.id, UDN.corap.id)
 	if countStarterFacs < 1 then
 		local labtype = KbotOrVeh()
 		if labtype == "kbot" then
 			return "corlab"
 		else
-			return "corvp"
+			return "corlab"
 		end
 	else
 		return skip
@@ -1382,14 +1432,16 @@ local corcommanderfirst = {
 	CorStarterLabT1,
 	CorWindOrSolar,
 	CorWindOrSolar,
+	AssistAround,
 	ShortDefense,
+	AssistAround,
 	CorRad,
 }
 
 local corcommanderafterlab = {
-	assistaround,
+	AssistAround,
 	CorEnComm,
-	RequestedAction,
+	--RequestedAction,
 	CorExpandRandomLab,
 }
 
