@@ -30,6 +30,10 @@ function dump(o)
 	end
 end
 
+function TaskQueueBehaviour:Name()
+	return "TaskQueueBehaviour"
+end
+
 function TaskQueueBehaviour:HasQueues()
 	return (taskqueues[self.name] ~= nil)
 end
