@@ -167,9 +167,10 @@ function ShardUnit:Guard( unit )
 	return true
 end
 
-function ShardUnit:Repair( unit )
+function ShardUnit:Repair( unit, modifiers )
+	modifiers = modifiers or {}
 	local gid = self:Unit_to_id( unit )
-	Spring.GiveOrderToUnit( self.id, CMD.REPAIR, { gid }, {} )
+	Spring.GiveOrderToUnit( self.id, CMD.REPAIR, { gid }, modifiers )
 	return true
 end
 
@@ -261,12 +262,6 @@ end
 
 function ShardUnit:AreaAttack(p,radius)
 	Spring.GiveOrderToUnit( self.id, CMD.AREA_ATTACK, { p.x, p.y, p.z, radius }, {} )
-	return true
-end
-
-function ShardUnit:Repair( unit )
-	local gid = self:Unit_to_id( unit )
-	Spring.GiveOrderToUnit( self.id, CMD.REPAIR, { gid }, {} )
 	return true
 end
 
