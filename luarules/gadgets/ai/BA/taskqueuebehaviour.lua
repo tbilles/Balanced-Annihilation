@@ -345,6 +345,10 @@ function TaskQueueBehaviour:HandleActionTask( task )
 		self.unit:Internal():MoveAndPatrol(newpos)
 		self.active = false
 		return
+	elseif action == "repair" then
+		self:Log("Repairing " .. task.target:ID())
+		self.unit:Internal():Repair(task.target, {"shift"})
+		return
 	else
 		self.game:SendToConsole("Error: Unknown action task "..value.." given to a "..self.name)
 		self:DebugPoint("nothing")
