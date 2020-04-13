@@ -12,6 +12,7 @@ function TaskQueueBehaviour:Init()
 
 	self.waiting = {}
 	self:OnToNextTask()
+	self.inactive_since = nil;
 
 end
 
@@ -127,35 +128,52 @@ function TaskQueueBehaviour:CompareWithOldPos()
 	return result
 end
 
+function TaskQueueBehaviour:UpdateInactive(frame)
+	if frame % 200 == 0 then
+		if self.unit:Internal():Type():IsFactory() then
+			return
+		end
+
+		local inative_now = self:IsRunningAQueue() and (not self:IsBusy()) and self:CompareWithOldPos() -- check stucked cons
+		if self.inactive_since == nil and inactive_now then
+			self.inactive_now = frame
+		elseif self.inactive_since ~= nil and not inactive_now then
+			self.inactive_since = nil
+		end
+	end
+end
+
+function TaskQueueBehaviour:IsInactive(now, period)
+	return self.inactive_since and now - self.inactive_since >= period
+end
+
 function TaskQueueBehaviour:Update()
-	if Spring.GetGameFrame()%600 == 0 then
-		if (not self.unit:Internal():Type():IsFactory()) then
-			if self:IsRunningAQueue() and (not self:IsBusy()) and self:CompareWithOldPos() then -- check stucked cons
-				self.unit:Internal():ExecuteCustomCommand(CMD.STOP, {}, {}) --> Triggers UnitIdle -> Next Task
-			elseif (not self:IsRunningAQueue()) and (not self:IsBusy()) then 
-				self.unit:Internal():ExecuteCustomCommand(CMD.STOP, {}, {}) --> Triggers UnitIdle -> Next Task
-				self:CompareWithOldPos()
-			else
-				self:CompareWithOldPos() -- still register current position
-			end		
+	local frame = Spring.GetGameFrame()
+	self:UpdateInactive(frame)
+
+	if frame % 600 == 0 then
+		if self:IsInactive(frame, 600) then
+			self:Log("Stopping#1")
+			self.unit:Internal():ExecuteCustomCommand(CMD.STOP, {}, {}) --> Triggers UnitIdle -> Next Task
+		elseif (not self:IsRunningAQueue()) and (not self:IsBusy()) then
+			self:Log("Stopping#2")
+			self.unit:Internal():ExecuteCustomCommand(CMD.STOP, {}, {}) --> Triggers UnitIdle -> Next Task
+			self:CompareWithOldPos()
+		else
+			self:CompareWithOldPos() -- still register current position
 		end
 	end
 	if not self:IsActive() then
 		self:DebugPoint("nothing")
 		return
 	end
-	local f = self.game:Frame()
-	if f%15 == self.unit:Internal().id%15 then
+	if frame%15 == self.unit:Internal().id%15 then
 		if self:CanQueueNextTask() then
 			self.progress = true
-			self:Log("Update, queuing next task")
-		else
-			self:Log("Update, cannot queue next task")
 		end
 	end
 	if self.progress == true then
 		if self.countdown > 14 then
-			self:Log("Update->ProgressQueue")
 			self:ProgressQueue()
 		else
 			if self.countdown == nil then
