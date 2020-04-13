@@ -90,7 +90,11 @@ function TaskQueueBehaviour:CanQueueNextTask()
 	local notprogressing = self.progress ~= true	-- Not already progressing in queue
 	local curqueuelength = #(Spring.GetCommandQueue(unitID,2))
 	local building = Spring.GetUnitIsBuilding(unitID)	-- we check cur buildspeed/power ~= 0
-	self:Log("CanQueueTask? " .. tostring(curqueuelength <= 1) .. "," .. tostring(building) .. "," .. tostring(notprogressing) .. "," .. tostring(notfactory))
+	local name
+	if building ~= nil then
+		name = UnitDefs[Spring.GetUnitDefID(building)].name
+	end
+	self:Log("CanQueueTask? " .. tostring(curqueuelength <= 1) .. "," .. tostring(building) .. "("..tostring(name)..")" .. "," .. tostring(notprogressing) .. "," .. tostring(notfactory))
 	if curqueuelength <= 1 and building and notprogressing and notfactory then
 		return true
 	else
