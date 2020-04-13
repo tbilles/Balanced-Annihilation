@@ -285,7 +285,7 @@ function TaskQueueBehaviour:HandleActionTask( task )
 			return
 		end
 		t = TaskQueueWakeup(self)
-		tqb = self
+		local tqb = self
 		self.ai.sleep:Wait({ wakeup = function() tqb:Log("wakeup lambda -> prgoressqueue"); tqb:ProgressQueue() end, },task.frames)
 	elseif action == "command" then
 		if task.params then
