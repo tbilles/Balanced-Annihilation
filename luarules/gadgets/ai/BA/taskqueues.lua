@@ -872,7 +872,7 @@ function AllowCon(tqb,ai,unit,name)
 		return AllowConT2(tqb, ai, unit, name)
 	elseif name == "armconsul" or name == "armfark" or name == "corfast" then
 		return AllowEngineer(tqb, ai, unit, name)
-	elseif name ~= 'armrectr' or name ~= "cornecro" then
+	elseif name ~= 'armrectr' and name ~= "cornecro" then
 		return AllowConT1(tqb, ai, unit, name)
 	else
 		return name
