@@ -2200,6 +2200,15 @@ local function cort2con(tqb, ai, unit)
 	return corassistqueue
 end
 
+local function t1lab(tqb, ai, unit)
+	local advancedlabcount = GetFinishedAdvancedLabs(tqb, ai, unit)
+	if advancedlabcount < 1 then
+		return lab
+	end
+
+	return { Builder, Helper }
+end
+
 --------------------------------------------------------------------------------------------
 ---------------------------------------- TASKQUEUES ----------------------------------------
 --------------------------------------------------------------------------------------------
@@ -2220,8 +2229,8 @@ taskqueues = {
 	-- ASSIST
 	corfast = assistqueuefreaker,
 	--factories
-	corlab = lab,
-	corvp = lab,
+	corlab = t1lab,
+	corvp = t1lab,
 	corap = airlab,
 	coralab = lab,
 	coravp = lab,
