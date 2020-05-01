@@ -765,6 +765,11 @@ function RequestedAction(tqb, ai, unit)
 end
 
 function GetAdvancedLabs(tqb,ai,unit)
+	local units = GetAdvancedLabUnits(tqb, ai, unit)
+	return #units
+end
+
+function GetAdvancedLabUnits(tqb,ai,unit)
 	local list = {
 	UDN.armalab.id,
 	UDN.coralab.id,
@@ -775,11 +780,18 @@ function GetAdvancedLabs(tqb,ai,unit)
 	UDN.armasy.id,
 	UDN.corasy.id,
 	}
-	local units = Spring.GetTeamUnitsByDefs(ai.id, list)
-	return #units
+	return Spring.GetTeamUnitsByDefs(ai.id, list)
 end
 
-function GetLabs(tqb,ai,unit)
+function GetGantryUnits(tqb, ai, unit)
+	local list = {
+		UDN.armshltx.id,
+		UDN.corgant.id,
+	}
+	return Spring.GetTeamUnitsByDefs(ai.id, list)
+end
+
+function GetLabUnits(tqb,ai,unit)
 	local list = {
 	UDN.armlab.id,
 	UDN.corlab.id,
@@ -790,7 +802,11 @@ function GetLabs(tqb,ai,unit)
 	UDN.armsy.id,
 	UDN.corsy.id,
 	}
-	local units = Spring.GetTeamUnitsByDefs(ai.id, list)
+	return Spring.GetTeamUnitsByDefs(ai.id, list)
+end
+
+function GetLabs(tqb,ai,unit)
+	local units = GetLabUnits(tqb,ai,unit)
 	return #units
 end
 
