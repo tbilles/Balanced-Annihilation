@@ -291,10 +291,76 @@ function TaskQueueBehaviour:TryToBuild( unit_name, pos )
 	return success
 end
 
+function TaskQueueBehaviour:FightRelativeLog(msg)
+	if self.ai.id == 1 and self.unit then
+		--Spring.Echo("Unit: " .. tostring(self.unit.engineID) .. "(" .. self.unit:Internal():Name() .."): " .. msg)
+	end
+end
+
 function TaskQueueBehaviour:Log(msg)
 	if self.ai.id == 1 and self.name == "corcom" then
-		Spring.Echo(msg)
+		--Spring.Echo(msg)
 	end
+end
+
+function tabletostring(t)
+	if t == nil then
+		return "nil"
+	end
+
+	output = "{"
+	for k, v in pairs(t) do
+		output = output .. ", [" .. tostring(k) .. "]= "
+		if type(v) == "table" then
+			output = output .. tabletostring(v)
+		else
+			output = output .. tostring(v)
+		end
+	end
+	output = output .. "}"
+	return output
+end
+
+function buildsummary(command)
+	if command.id < 0 then
+		local unitdefid = -command.id
+		return "Build(" .. UnitDefs[unitdefid].name .. ")"
+	else
+		return ""
+	end
+end
+
+function TaskQueueBehaviour:RemoveFightRelative()
+	--self:FightRelativeLog("Looking for fight order")
+	if self.unit == nil then
+		return
+	end
+
+	local commands = Spring.GetUnitCommands(self.unit.engineID, 2)
+	if commands == nil then
+		--self:FightRelativeLog("unit has no queue")
+		return
+	end
+
+	--self:FightRelativeLog("Commands: " .. tabletostring(commands))
+	for idx, command in ipairs(commands) do
+		if command.id == nil then
+			--self:FightRelativeLog("no id")
+			return
+		end
+
+		if command.id == CMD.FIGHT then
+			--self:FightRelativeLog("Removing fight order " .. tostring(idx))
+			self.unit:Internal():ExecuteCustomCommand(CMD.REMOVE, {command.id}, { "alt" })
+			local commands2 = Spring.GetUnitCommands(self.unit.engineID, 2)
+			--self:FightRelativeLog("Commands after remove: " .. tabletostring(commands2))
+			return
+		else
+			--self:FightRelativeLog(tostring(idx) .. ". order is " .. buildsummary(command) .. ": " .. tabletostring(command))
+		end
+	end
+	--self:FightRelativeLog("Fight order not found")
+
 end
 
 function TaskQueueBehaviour:HandleActionTask( task )
@@ -335,7 +401,10 @@ function TaskQueueBehaviour:HandleActionTask( task )
 		newpos.x = upos.x + task.position.x
 		newpos.y = upos.y + task.position.y
 		newpos.z = upos.z + task.position.z
+		--self:FightRelativeLog("Giving fightrelative command")
 		self.unit:Internal():MoveAndFire(newpos, {"shift"})
+		local tqb = self
+		self.ai.sleep:Wait({ wakeup = function() tqb:RemoveFightRelative() end, }, 60 * 30 )
 	elseif action == "patrol" then
 		self.unit:Internal():MoveAndPatrol(task.position)
 		self.active = false
