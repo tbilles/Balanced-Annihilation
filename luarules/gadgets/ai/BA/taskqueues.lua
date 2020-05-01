@@ -838,6 +838,24 @@ function AllowConT1(tqb,ai,unit,name)
 	return (((#sametypecon < 1) or (#allt1cons < 10)) and name) or nil
 end
 
+function Clamp(value, min, max)
+	if value < min then
+		return min
+	end
+	if value > max then
+		return max
+	end
+	return value
+end
+
+function AllowHelper(tqb, ai, unit, name)
+	local udid = UDN[name].id
+	local sametype = Spring.GetTeamUnitsByDefs(ai.id, udid)
+	local gameminutes = Spring.GetGameSeconds() / 60
+	local allowed = #sametype < Clamp(gameminutes, 30, 60)
+	return (allowed and name) or nil
+end
+
 function AllowConT2(tqb,ai,unit,name)
 	local udid = UDN[name].id
 	local sametypecon = Spring.GetTeamUnitsByDefs(ai.id, udid)
@@ -875,7 +893,7 @@ function AllowCon(tqb,ai,unit,name)
 	elseif name ~= 'armrectr' and name ~= "cornecro" then
 		return AllowConT1(tqb, ai, unit, name)
 	else
-		return name
+		return AllowHelper(tqb, ai, unit, name)
 	end
 end
 	
