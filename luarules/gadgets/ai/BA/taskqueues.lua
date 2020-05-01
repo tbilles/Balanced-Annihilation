@@ -111,7 +111,7 @@ function AssistAround(tqb, ai, unit)
 		local health, maxhealth, _, _, buildprogress = Spring.GetUnitHealth(nearbyunit)
 		if buildprogress < 1 then
 			local shardunit = Shard:shardify_unit(nearbyunit)
-			local building = shardunit:Type():CanMove()
+			local building = not shardunit:Type():CanMove()
 			if building then
 				table.insert(building_under_construction, shardunit)
 			else
