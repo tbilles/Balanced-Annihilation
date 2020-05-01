@@ -2124,11 +2124,12 @@ local function cort1con(tqb, ai, unit)
 			unit.mode = "mexspam"
 		elseif ai.t1concounter%10 == 8 or ai.t1concounter%10 == 9 then
 			unit.mode = "assist"
-		elseif ai.t1concounter%10 == 1 or ai.t1concounter%10 == 3 or ai.t1concounter%10 == 4 then
+		elseif ai.t1concounter%10 == 1 or ai.t1concounter%10 == 3 or ai.t1concounter%10 == 6 then
 			unit.mode = "expand"
 		else
 			unit.mode = "eco"
 		end
+		--Spring.Echo("T1 (" .. unit:Internal():ID() .. "): " .. unit.mode)
 	end
 	if unit.mode == "mexspam" then
 		return cormexspam
@@ -2182,7 +2183,7 @@ local function cort2con(tqb, ai, unit)
 			unit.mode = "mexspam"
 		elseif ai.t2concounter%10 == 8 or ai.t2concounter%10 == 9 then
 			unit.mode = "assist"
-		elseif ai.t2concounter%10 == 2 or ai.t2concounter%10 == 3 or ai.t2concounter%10 == 4 then
+		elseif ai.t2concounter%10 == 2 or ai.t2concounter%10 == 6 or ai.t2concounter%10 == 4 then
 			unit.mode = "expand"
 		else
 			unit.mode = "eco"
