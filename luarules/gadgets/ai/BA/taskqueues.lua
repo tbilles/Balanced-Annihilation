@@ -101,9 +101,9 @@ function GetTechLevelRate(ai, unit, name)
 	return rate
 end
 
-function AssistAround(tqb, ai, unit)
+function GetNearbyUnits(unit, radius)
 	local pos = unit:GetPosition()
-	local nearbyunits = Spring.GetUnitsInSphere(pos.x, pos.y, pos.z, 600)
+	local nearbyunits = Spring.GetUnitsInSphere(pos.x, pos.y, pos.z, radius)
 	local building_under_construction = {}
 	local moving_under_construction = {}
 	local damaged = {}
@@ -121,29 +121,98 @@ function AssistAround(tqb, ai, unit)
 			table.insert(damaged, Shard:shardify_unit(nearbyunit))
 		end
 	end
+	return building_under_construction, moving_under_construction, damaged
+end
+
+function SelectBestTarget(targets, exception)
 	local best
-	local current_build_target = Spring.GetUnitIsBuilding(unit:ID())
-	Spring.Echo("Considering " .. #underconstruction .. " target that is being built")
-	for _, target in ipairs(underconstruction) do
-		Spring.Echo("Considering target " .. tostring(target:ID()))
-		local skip_target = current_build_target == target:ID()
+	for _, target in ipairs(targets) do
+		local skip_target = exception == target:ID()
 		if not skip_target then
 			local unittype = target:Type()
-			local isbuilding = not unittype:CanMove()
 			local targetingpriority = unittype:TargetingPriority()
-			if best == nil or (isbuilding and not best.isbuilding) or (targetingpriority > best.targetingpriority) then
-				Spring.Echo("best so far")
-				best = { unit = target, isbuilding = isbuilding, targetingpriority = targetingpriority }
+			if best == nil or targetingpriority > best.targetingpriority then
+				best = { unit = target, targetingpriority = targetingpriority }
 			end
 		end
 	end
-	if best ~= nil then
-		Spring.Echo("Repair " .. tostring(best.unit:ID()) .. ", while building: " .. tostring(current_build_target))
-		return { action = "repair", target = best.unit }
+	if best == nil then
+		return nil
+	else
+		return best.unit
 	end
+end
+
+function AssistAround(tqb, ai, unit)
+	local radius = 600
+	local building_under_construction, moving_under_construction, damaged = GetNearbyUnits(unit, radius)
+	local current_build_target = Spring.GetUnitIsBuilding(unit:ID())
+	local best = SelectBestTarget(building_under_construction, current_build_target)
+	if best ~= nil then
+		--Spring.Echo("Help building a building " .. tostring(best:ID()) .. ", while building: " .. tostring(current_build_target))
+		return { action = "repair", target = best }
+	end
+
+	local best = SelectBestTarget(moving_under_construction, current_build_target)
+	if best ~= nil then
+		--Spring.Echo("Help building a moving unit " .. tostring(best:ID()) .. ", while building: " .. tostring(current_build_target))
+		return { action = "repair", target = best }
+	end
+
 	if #damaged >= 1 then
-		Spring.Echo("Repair damaged")
+		--Spring.Echo("Repair damaged")
 		return { action = "repair", target = damaged[1] }
+	end
+
+	-- No task around, move back to base
+	local labs = GetLabUnits(tqb, ai, unit)
+	if #labs > 0 then
+		local lab = labs[1]
+		local labx, laby, labz = Spring.GetUnitPosition(lab)
+		local x, _, z = Spring.GetUnitPosition(unit:ID())
+		local distance = math.sqrt((labx-x)^2 + (labz-z)^2)
+		if distance > (radius - 50) then
+			return { action = "move", position = {x = labx + 50, y = laby, z = labz + 50} }
+		else
+			return skip
+		end
+	else
+		return skip
+	end
+end
+
+function Contains(list, item)
+	for _, listitem in ipairs(list) do
+		if listitem == item then
+			return true
+		end
+	end
+	return false
+end
+
+function ReclaimOutdatedUnits(tqb, ai, unit)
+	if income(ai, "energy") < 2000 then
+		return skip
+	end
+
+	local x, y, z = Spring.GetUnitPosition(unit:ID())
+	local radius = UnitDefs[UDN.cornanotc.id].buildDistance
+	local unitDefIdsToReclaim = {
+		UDN.armwin.id,
+		UDN.armmakr.id,
+		UDN.armsolar.id,
+		UDN.armadvsol.id,
+		UDN.corwin.id,
+		UDN.cormakr.id,
+		UDN.corsolar.id,
+		UDN.coradvsol.id
+	}
+	local nearbyunits = Spring.GetUnitsInSphere(x, y, z, radius)
+	for _, unit in ipairs(nearbyunits) do
+		local unitDefID = Spring.GetUnitDefID(unit)
+		if Contains(unitDefIdsToReclaim, unitDefID) then
+			return {action = "command", params = { cmdID = CMD.RECLAIM, cmdParams = {unit}, cmdOptions = {"shift"}}}
+		end
 	end
 	return skip
 end
@@ -1552,9 +1621,11 @@ local corcommanderfirst = {
 
 local corcommanderafterlab = {
 	AssistAround,
+	--assistaround,
 	CorEnComm,
 	--RequestedAction,
 	CorExpandRandomLab,
+	ReclaimOutdatedUnits,
 }
 
 local cort1eco = {
@@ -1689,6 +1760,7 @@ assistqueuefreaker = {
 	CorNanoT,
 	assistaround,	
 	RequestedAction,
+	ReclaimOutdatedUnits,
 }
 
 assistqueueconsul = {
