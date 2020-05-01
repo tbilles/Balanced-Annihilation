@@ -183,8 +183,9 @@ function ShardUnit:ManualFire(p)
 	return true
 end
 
-function ShardUnit:Move(p)
-	Spring.GiveOrderToUnit( self.id, CMD.MOVE, { p.x, p.y, p.z }, {} )
+function ShardUnit:Move(p, modifiers)
+	modifiers = modifiers or {}
+	Spring.GiveOrderToUnit( self.id, CMD.MOVE, { p.x, p.y, p.z }, modifiers )
 	return true
 end
 

@@ -319,7 +319,7 @@ function TaskQueueBehaviour:HandleActionTask( task )
 		end
 		self:TryToBuild(action, task.pos)
 	elseif action == "move" then
-		self.unit:Internal():Move(task.position)
+		self.unit:Internal():Move(task.position, {"shift"})
 	elseif action == "moverelative" then
 		local upos = unit:GetPosition()
 		local newpos = api.Position()
