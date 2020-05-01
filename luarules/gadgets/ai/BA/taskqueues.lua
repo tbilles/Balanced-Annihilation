@@ -1236,45 +1236,33 @@ end
 function CorEnComm( tqb, ai, unit )	
 	local currentstoredenergy = curstorperc(ai, "energy")
 	local energyneeded = currentstoredenergy < 20 and curstor(ai, "metal") > 150
-	Spring.Echo("CorEnComm...")
 	if (income(ai, "energy") < ai.aimodehandler.eincomelimiterpretech2) and energyneeded then
-		Spring.Echo("CorEnComm building energy generator")
 		return (CorWindOrSolarComm(tqb, ai, unit))
 	elseif (income(ai, "energy") < ai.aimodehandler.eincomelimiterposttech2) and energyneeded and GetFinishedAdvancedLabs(tqb, ai, unit) >= 1 then
-		Spring.Echo("CorEnComm building energy generator 2")
 		return (CorWindOrSolarComm(tqb, ai, unit))
 	elseif income(ai, "metal") < 40 and Spring.GetTeamRulesParam(ai.id, "mmCapacity") < income(ai, "energy") and curstorperc(ai, "energy") > 80 then
-		Spring.Echo("CorEnComm building metal maker")
 		return "cormakr"
 	else
-		Spring.Echo("CorEnComm skip")
 		return skip
 	end
 end
 
 function CorEnT1( tqb, ai, unit )	
-	local countEstore = UDC(ai.id, UDN.corestor.id) + UDC(ai.id, UDN.armestor.id)
-	local realeincome = realincome(ai, "energy")
 	local currentstoredenergy = curstorperc(ai, "energy")
-	local energyneeded = (currentstoredenergy < 20 and curstor(ai, "metal") > 150) or (realeincome < 0 and currentstoredenergy < 80)
+	local energyneeded = currentstoredenergy < 20 and curstor(ai, "metal") > 150
 	if (income(ai, "energy") < ai.aimodehandler.eincomelimiterpretech2) and energyneeded then
-		Spring.Echo("EnT1 building energy generator")
 		return (CorWindOrSolar(tqb, ai, unit))
-	elseif (income(ai, "energy") < ai.aimodehandler.eincomelimiterposttech2) and realeincome < 0 and curstorperc(ai, "energy") < 80 and GetFinishedAdvancedLabs(tqb, ai, unit) >= 1 then
-		Spring.Echo("EnT1 building energy generator 2")
+	elseif (income(ai, "energy") < ai.aimodehandler.eincomelimiterposttech2) and energyneeded and GetFinishedAdvancedLabs(tqb, ai, unit) >= 1 then
 		return (CorWindOrSolar(tqb, ai, unit))
-	elseif Spring.GetTeamRulesParam(ai.id, "mmCapacity") < income(ai, "energy") and curstorperc(ai, "energy") > 70 then
-		Spring.Echo("EnT1 building metal maker")
+	elseif income(ai, "metal") < 40 and Spring.GetTeamRulesParam(ai.id, "mmCapacity") < income(ai, "energy") and curstorperc(ai, "energy") > 80 then
 		return "cormakr"
-	elseif storabletime(ai, "energy") < 8 and curstorperc(ai, "energy") > 80 then
-		Spring.Echo("EnT1 building energystorage")
-		return "corestor"
-	elseif storabletime(ai, "metal") < 8 or curstorperc(ai, "metal") > 90 then
-		Spring.Echo("EnT1 building metalstorage")
-		return "cormstor"
 	else
-		Spring.Echo("skip")
-		return skip
+		local hasfusion = UDC(ai.id, UDN.corfus.id) > 0
+		if hasfusion then
+			return skip
+		else
+			return CorWindOrSolar(tqb, ai, unit)
+		end
 	end
 end
 
