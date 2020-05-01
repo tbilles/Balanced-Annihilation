@@ -1156,18 +1156,12 @@ function CorWindOrSolarComm(tqb, ai, unit)
 end
 
 function CorWindOrSolar(tqb, ai, unit)
-    local _,_,_,curWind = Spring.GetWind()
-    local avgWind = (Game.windMin + Game.windMax)/2
 	if ai and ai.id then
 		if not (UDC(ai.id, UDN.armfus.id) + UDC(ai.id, UDN.corfus.id) > 1) then
-			if curWind > 7 and avgWind > 8 then
-				return "corwin"
+			if income(ai, "energy") > 200 and income(ai, "metal") > 15 then
+				return "coradvsol"
 			else
-				if income(ai, "energy") > 200 and income(ai, "metal") > 15 and (UUDC("armadvsol", ai.id) + UUDC("coradvsol", ai.id)) < 2 then
-					return "coradvsol"
-				else
-					return "corsolar"
-				end
+				return "corsolar"
 			end
 		else
 			return skip	
