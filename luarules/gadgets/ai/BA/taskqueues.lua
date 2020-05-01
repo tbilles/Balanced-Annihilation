@@ -1171,8 +1171,44 @@ function CorWindOrSolar(tqb, ai, unit)
 	end
 end
 
+function NanoCountAroundPosition(tqb, ai, unit, pos)
+	local cornanoid = UDN.cornanotc.id
+	local armnanoid = UDN.armnanotc.id
+	local radius = UnitDefs[UDN.cornanotc.id].buildDistance
+	local nearbyunits = Spring.GetUnitsInSphere(pos.x, pos.y, pos.z, radius)
+	local count = 0
+	for _, unit in ipairs(nearbyunits) do
+		local unitdefid = Spring.GetUnitDefID(unit)
+		local unitteam = Spring.GetUnitTeam(unit)
+		if unitdefid and unitteam then
+			if unitteam == ai.id and (unitdefid == cornanoid or unitdefid == armnanoid) then
+				count = count + 1
+			end
+		end
+	end
+	return count
+end
+
 function CorNanoT(tqb, ai, unit)
 	if timetostore(ai, "energy", 5000) < 40 and timetostore(ai, "metal", 300) < 40 and UDC(ai.id, UDN.armnanotc.id) + UDC(ai.id, UDN.cornanotc.id) < income(ai, "energy")/500 then
+		local gantries = GetGantryUnits(tqb, ai, unit)
+		for _, gantry in ipairs(gantries) do
+			local x, y, z = Spring.GetUnitPosition(gantry)
+			local pos = { x = x, y = y, z = z }
+			local nanocount = NanoCountAroundPosition(tqb, ai, unit, pos)
+			if nanocount < 10 then
+				return { action = "cornanotc", pos = pos }
+			end
+		end
+		local labs = GetAdvancedLabUnits(tqb, ai, unit)
+		for _, lab in ipairs(labs) do
+			local x, y, z = Spring.GetUnitPosition(lab)
+			local pos = { x = x, y = y, z = z }
+			local nanocount = NanoCountAroundPosition(tqb, ai, unit, pos)
+			if nanocount < 10 then
+				return { action = "cornanotc", pos = pos }
+			end
+		end
 		return "cornanotc"
 	else
 		return skip
