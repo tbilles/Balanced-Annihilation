@@ -1748,6 +1748,7 @@ local cort2expand = {
 	AADefense,
 	assistaround,
 	LongDefense,
+	"cortron",
 }
 
 local cort2mexspam = {
@@ -2156,6 +2157,7 @@ local armt2expand = {
 	AADefense,
 	assistaround,
 	LongDefense,
+	"armemp",
 }
 
 local armt2mexspam = {
