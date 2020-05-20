@@ -15,6 +15,12 @@ function MainSquadHandler:Init()
 	self.squadmaxsize = 20 -- Smaller size = more cpu usage !
 end
 
+function Distance(pos1, pos2)
+	local diffx = pos1.x - pos2.x
+	local diffy = pos1.y - pos2.y
+	return math.sqrt(diffx*diffx + diffy*diffy)
+end
+
 function MainSquadHandler:Update()
 
 	--Commander position for atk behaviour
@@ -45,34 +51,39 @@ function MainSquadHandler:Update()
 		elseif (frame%mainAttackRefreshRate == (i*1500+(self.ai.id*4000))%mainAttackRefreshRate) then -- Generate squad targets
 			--update position
 			self.squads[i].position = self:GetSquadPosition(i)
-			if self.targetPool[1] then
-				self.squads[i].target = self.targetPool[1]
-			elseif self.targetPool[2] then
-				self.squads[i].target = self.targetPool[2]
-			elseif self.targetPool[3] then
-				self.squads[i].target = self.targetPool[3]
-			else
-				local target = GG.AiHelpers.TargetsOfInterest.GetTarget(self.ai.id)
-				if ai.triggerhandler.CommInDanger and ai.triggerhandler.CommAttackerPos and ai.triggerhandler.CommAttackerPos.x then
-					self.squads[i].target = ai.triggerhandler.CommAttackerPos
-				elseif target and squad.role == "attacker" then
-					self.squads[i].target = target
+			if squad.target and squad.target.x and Distance(squad.position, squad.target) < 300 then
+				squad.target = nil
+			end
+			if not squad.target or not squad.target.x then
+				if self.targetPool[1] then
+					self.squads[i].target = self.targetPool[1]
+				elseif self.targetPool[2] then
+					self.squads[i].target = self.targetPool[2]
+				elseif self.targetPool[3] then
+					self.squads[i].target = self.targetPool[3]
 				else
-					if squad.role == "attacker" then
-						self.squads[i].target = self.ai.metalspothandler:ClosestEnemySpot(self.game:GetTypeByName("armmex") , self.squads[i].position )
-						self:SetSquadAggressiveness(i, 2)
+					local target = GG.AiHelpers.TargetsOfInterest.GetTarget(self.ai.id)
+					if ai.triggerhandler.CommInDanger and ai.triggerhandler.CommAttackerPos and ai.triggerhandler.CommAttackerPos.x then
+						self.squads[i].target = ai.triggerhandler.CommAttackerPos
+					elseif target and squad.role == "attacker" then
+						self.squads[i].target = target
 					else
-						if Spring.GetGameSeconds() < ai.aimodehandler.nodefenderscounter then
-							if self.ai.metalspothandler:ClosestFreeSpot(self.game:GetTypeByName("armmex") , self.squads[i].position) then
-								self.squads[i].target = self.ai.metalspothandler:ClosestFreeSpot(self.game:GetTypeByName("armmex") , self.squads[i].position)
-								self:SetSquadAggressiveness(i, 2)
+						if squad.role == "attacker" then
+							self.squads[i].target = self.ai.metalspothandler:ClosestEnemySpot(self.game:GetTypeByName("armmex") , self.squads[i].position )
+							self:SetSquadAggressiveness(i, 2)
+						else
+							if Spring.GetGameSeconds() < ai.aimodehandler.nodefenderscounter then
+								if self.ai.metalspothandler:ClosestFreeSpot(self.game:GetTypeByName("armmex") , self.squads[i].position) then
+									self.squads[i].target = self.ai.metalspothandler:ClosestFreeSpot(self.game:GetTypeByName("armmex") , self.squads[i].position)
+									self:SetSquadAggressiveness(i, 2)
+								else
+									self.squads[i].target = self.ai.metalspothandler:ClosestEnemySpot(self.game:GetTypeByName("armmex") , self.squads[i].position )
+									self:SetSquadAggressiveness(i, 2)
+								end
 							else
 								self.squads[i].target = self.ai.metalspothandler:ClosestEnemySpot(self.game:GetTypeByName("armmex") , self.squads[i].position )
 								self:SetSquadAggressiveness(i, 2)
 							end
-						else
-							self.squads[i].target = self.ai.metalspothandler:ClosestEnemySpot(self.game:GetTypeByName("armmex") , self.squads[i].position )
-							self:SetSquadAggressiveness(i, 2)
 						end
 					end
 				end
@@ -126,7 +137,7 @@ function MainSquadHandler:GetAggressiveness(atkbehaviour)
 end
 
 function MainSquadHandler:GetSquadRole(atkbehaviour)
-	if self.ratio == 1 or math.random(1, self.ratio) == 1 then
+	if self.ratio == 1 or math.random(1, self.ratio) <= 3 then
 		return ("attacker")
 	else
 		return ("defender")
