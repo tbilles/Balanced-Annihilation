@@ -19,11 +19,13 @@ mediumrangelist = {
 	-- "armguard",
 	"armamb",
 	"armanni",
+	"armgate",
 	
 	"corhlt",
 	-- "corpun",
 	"cortoast",
 	"cordoom",
+	"corgate",
 }
 
 longrangelist = {
