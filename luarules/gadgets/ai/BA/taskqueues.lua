@@ -1759,6 +1759,7 @@ local cort2mexspam = {
 local cordecomqueue = {
 	CorMexT1,
 	assistaround,
+	ReclaimOutdatedUnits,
 }
 
 assistqueuepostt2arm = {
@@ -1796,9 +1797,13 @@ armassistqueue = {
 
 assistqueuepatrol = {
 	patrolaround1,
+	ReclaimOutdatedUnits,
 	patrolaround2,
+	ReclaimOutdatedUnits,
 	patrolaround3,
+	ReclaimOutdatedUnits,
 	patrolaround4,
+	ReclaimOutdatedUnits,
 }
 
 assistqueuefreaker = {
