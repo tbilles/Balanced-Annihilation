@@ -198,14 +198,20 @@ function ReclaimOutdatedUnits(tqb, ai, unit)
 	local x, y, z = Spring.GetUnitPosition(unit:ID())
 	local radius = UnitDefs[UDN.cornanotc.id].buildDistance
 	local unitDefIdsToReclaim = {
+		UDN.armllt.id,
+		UDN.armbeamer.id,
 		UDN.armwin.id,
 		UDN.armmakr.id,
 		UDN.armsolar.id,
 		UDN.armadvsol.id,
+		UDN.corllt.id,
+		UDN.corhllt.id,
+		UDN.corhlt.id,
 		UDN.corwin.id,
 		UDN.cormakr.id,
 		UDN.corsolar.id,
 		UDN.coradvsol.id
+
 	}
 	local nearbyunits = Spring.GetUnitsInSphere(x, y, z, radius)
 	for _, unit in ipairs(nearbyunits) do
