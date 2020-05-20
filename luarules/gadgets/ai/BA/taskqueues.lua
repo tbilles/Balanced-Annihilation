@@ -499,7 +499,24 @@ function Fighter(tqb, ai, unit)
 	end
 end
 
+function SkipT1Defense(tqb, ai, unit)
+	local name = unit:Name()
+	if name ~= "corck" and name ~= "corcv" and name ~= "corca" and name ~= "armck" and name ~= "armcv" and name ~= "armca" then
+		return false
+	end
+
+	if income(ai, "metal") > 100 and income(ai, "energy") > 1000 and GetAdvancedLabs(tqb, ai, unit) > 0 then
+		return true
+	end
+
+	return false
+end
+
 function ShortDefense(tqb, ai, unit)
+	if SkipT1Defense(tqb, ai, unit) then
+		return skip
+	end
+
 	possibilities[unit:Name()] = possibilities[unit:Name()] or {}
 	local ct = GetPlannedAndUnfinishedType(tqb, ai, unit, shortrangeIDlist)
 	if ct > 2 then
@@ -536,6 +553,10 @@ function ShortDefense(tqb, ai, unit)
 end
 
 function MediumDefense(tqb, ai, unit)
+	if SkipT1Defense(tqb, ai, unit) then
+		return skip
+	end
+
 	possibilities[unit:Name()] = possibilities[unit:Name()] or {}
 	local ct = GetPlannedAndUnfinishedType(tqb, ai, unit, mediumrangeIDlist)
 	if ct > 0 then
@@ -572,6 +593,10 @@ function MediumDefense(tqb, ai, unit)
 end
 
 function LongDefense(tqb, ai, unit)
+	if SkipT1Defense(tqb, ai, unit) then
+		return skip
+	end
+
 	possibilities[unit:Name()] = possibilities[unit:Name()] or {}
 	local ct = GetPlannedAndUnfinishedType(tqb, ai, unit, longrangeIDlist)
 	if ct > 0 then
@@ -700,6 +725,17 @@ function LolCannon(tqb, ai, unit)
 	end
 end
 
+function UnitCount(name, unitlist)
+	local count = 0
+	for _, unitid in ipairs(unitlist) do
+		local unitdefid = Spring.GetUnitDefID(unitid);
+		if UnitDefs[unitdefid].name == name then
+			count = count + 1
+		end
+	end
+	return count
+end
+
 function AADefense(tqb, ai, unit)
 	possibilities[unit:Name()] = possibilities[unit:Name()] or {}
 	local ct = GetPlannedAndUnfinishedType(tqb, ai, unit, antiairIDlist)
@@ -719,9 +755,11 @@ function AADefense(tqb, ai, unit)
 	if possibilities[unit:Name()]["aadef"][1] then
 		local list = {}
 		local count = 0
+		local pos = unit:GetPosition()
+		local nearbyunits = Spring.GetUnitsInSphere(pos.x, pos.y, pos.z, 600)
 		for ct, unitName in pairs(possibilities[unit:Name()]["aadef"]) do
 			local defs = UnitDefs[UnitDefNames[unitName].id]
-			if ResourceCheck(tqb, ai, unit, unitName) then
+			if ResourceCheck(tqb, ai, unit, unitName) and UnitCount(unitName, nearbyunits) < 2 then
 				count = count + 1
 				list[count] = unitName
 			end
