@@ -1507,9 +1507,8 @@ end
 function SelectBestLabAfterT1(tqb, ai, unit)
 	local labs = { "corgant", "coralab", "coravp", "coraap" }
 	for _, lab in ipairs(labs) do
-		if lab == "corgant" then
-		end
-		if CanBuild(tqb, ai, unit, lab) then
+		local toomanylab = lab ~= "corgant" and UDC(ai.id, UDN[lab].id) >= 2
+		if CanBuild(tqb, ai, unit, lab) and not toomanylab then
 			return lab
 		end
 	end
@@ -1520,9 +1519,6 @@ function CorExpandRandomLab(tqb, ai, unit)
 	local labtype = SelectBestLabAfterT1(tqb, ai, unit)
 	if labtype == skip then
 		labtype = SelectBestLabT1(tqb, ai, unit)
-	end
-	if labtype == skip then
-		--Spring.Echo("Expangin: cannot expand, out of options")
 	end
 
 	if UnitDefNames[labtype] then
@@ -1536,22 +1532,18 @@ function CorExpandRandomLab(tqb, ai, unit)
 		then
 			labtype = labtype
 		else
-			--Spring.Echo("Expangin: cannot expand, out of resources: all advanced labs: " .. tostring(aal) .. ", pland and unfinished: " .. tostring(gpaul))
 			labtype = skip
 		end
 	else
-		--Spring.Echo("Expangin: cannot expand, unknown type: " .. labtype)
 		labtype = skip
 	end
+
 	if labtype == skip then
-		--Spring.Echo("Expanding skip")
 		return labtype
 	elseif GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id) then
 		local x, y, z = GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id)
-		--Spring.Echo("Expanding: " .. labtype)
 		return {action = labtype, pos = {x = x, y = y, z = z}}
 	else
-		--Spring.Echo("Expanding: " .. labtype)
 		return labtype
 	end
 end
