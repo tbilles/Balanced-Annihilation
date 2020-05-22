@@ -223,6 +223,9 @@ end
 
 function UnitHandler:UnitDamaged(engineUnit,engineAttacker,damage)
 	local u = self:AIRepresentation(engineUnit)
+	if u == nil then
+		return
+	end
 	-- local a = self:AIRepresentation(engineAttacker)
 	for k,v in pairs(self.myActiveUnits) do
 		v:UnitDamaged(u,engineAttacker,damage)
