@@ -21,7 +21,6 @@ skirmisherlist = {
 	"corban",	--	Banisher		/	Heavy Missile Tank
 	"corgol",	--	Goliath			/	Very heavy Assault Tank
 	"corparrow",--	Posion Arrow	/	Very Heavy Amphibious Tank
-	"corshiva",	--	Shiva			/	Amphibious Siege Mech
 	"corkrog",	--	Krogoth			/	Experimental Assault Kbot
 	--"cordecom",	--	Decoy Commander /   Decoy Commander -- I know it's weird but it's not that bad
 	--"armdecom", --  Decoy Commander /   Decoy Commander -- I know it's weird but it's not that bad
@@ -45,6 +44,7 @@ artillerylist = {
 	"corvrad",	--	Informer		/	Radar Vehicle	
 	"armmark",  --  Marky           /   Radar Kbot	
 	"corvoyr",	--	Voyeur			/	Radar Kbot
+	"corcat",	--	Catapult		/	Heavy Rocket Kbot
 }
 
 attackerlist = {
@@ -56,7 +56,6 @@ attackerlist = {
 	"cornecro",	--	Necro			/ 	Rez-Reclaim
 	"corspec",	--	Spectre			/	Radar Jamming Kbot
 	"coreter",	--	Deleter			/	Radar Jammer Vehicle
-	"corcat",	--	Catapult		/	Heavy Rocket Kbot
 }
 
 gunshiplist = {
@@ -109,6 +108,7 @@ unusedlist = {
 	"corshark",	--	Shark			/	Submarine Killer
 	"corsjam",	--	Phantom			/	Radar Jammer Ship
 	"corssub",	--	Leviathan		/	Battle Submarine
+	"corshiva",	--	Shiva			/	Amphibious Siege Mech
 }
 
 otherlist = {
