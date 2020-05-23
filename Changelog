@@ -1,0 +1,15 @@
+V10.24-tbilles~2 -> V10.24-tbilles~3
+
+* DAI may also build energy shields
+* DAI may also build EMP and Tactical Nuke
+* Do not build outdated T1 buildings when they would just be reclaimed (because they are outdates)
+* Reclaim outdated units more aggressively
+* Squads do not jump from target to target, they stick to the first Target they are assigned to
+
+V10.24 -> V10.24-tbilles~2
+
+* Fix DAI on speedmetal maps
+* DAI always uses tech rush mode
+* DAI honors lobby chosen faction
+* Tweak wind generator usage
+* Reach Tech level 2 faster and more deterministically
