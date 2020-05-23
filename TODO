@@ -1,0 +1,19 @@
+- T2 energy production is mostly based on a predefined exponential growth.
+    - This does not take resource bonuses or the resources of the specific map
+      into account. Its economy could be much better if it could take energy
+      demand into account too.
+
+- Build more energy shields
+
+- If there are enough resources, throttle down T2 units in favor of T3 units.
+
+- Make some laser purple. Just for fun.
+
+- Use Catapults.
+    - They are really powerful against stationary defense lines.
+
+- Bombers should choose their targets to do the most damage.
+    - Consider Fusion reactors' and moho geothermal plants' blast radius
+    - Focus on destroying energy shields (to weaken stationary defense lines)
+    - Focus on anti nukes, nukes
+    - Do not focus on factories, they aren't that important
