@@ -1,8 +1,3 @@
-- T2 energy production is mostly based on a predefined exponential growth.
-    - This does not take resource bonuses or the resources of the specific map
-      into account. Its economy could be much better if it could take energy
-      demand into account too.
-
 - Build more energy shields
 
 - If there are enough resources, throttle down T2 units in favor of T3 units.

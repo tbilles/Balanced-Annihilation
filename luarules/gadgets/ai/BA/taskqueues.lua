@@ -1385,68 +1385,38 @@ function CorEnT1( tqb, ai, unit )
 end
 
 function CorEnT2( tqb, ai, unit )
-	--if storabletime(ai, "energy") < 10 and not (GetPlannedAndUnfinishedType(tqb,ai,unit, {UDN.coruwadves.id, UDN.armuwadves.id }) > 0) then
-		--return "coruwadves"
-	--elseif storabletime(ai, "metal") < 5 and not (GetPlannedAndUnfinishedType(tqb,ai,unit, {UDN.coruwadvms.id, UDN.armuwadvms.id }) > 0)then
-		--return "coruwadvms"
-	if income(ai, "energy") > 6000 and
-	    income(ai, "metal") > 100 and
-	    Spring.GetTeamRulesParam(ai.id, "mmCapacity") > income(ai, "energy")-3000 and
-	    income(ai, "energy") < ((math.max((Spring.GetGameSeconds() / 60) - 5, 1)/6) ^ 2) * 1000 and
-	    unit:Name() == "coracv"
-	then
-       		if GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id) then
-			local x, y, z = GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id)
-			return {action = "corafus", pos = {x = x, y = y, z = z}}
-		else
-			return "corafus"
-		end
-	elseif income(ai, "energy") > ai.aimodehandler.mintecheincome and
-	    income(ai, "metal") > ai.aimodehandler.mintechmincome and
-	    Spring.GetTeamRulesParam(ai.id, "mmCapacity") > income(ai, "energy")-1200 and
-	    income(ai, "energy") < ((math.max((Spring.GetGameSeconds() / 60) - 2, 1)/6) ^ 2) * 1000
-	then
-       		if GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id) then
-			local x, y, z = GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id)
-			return {action = "corfus", pos = {x = x, y = y, z = z}}
-		else
-			return "corfus"
-		end
-	elseif income(ai, "energy") > 6000 and
-	    income(ai, "metal") > 100 and
-	    (UUDC("armafus",ai.id) + UUDC("corafus",ai.id)) < 2 and
-	    Spring.GetTeamRulesParam(ai.id, "mmCapacity") > income(ai, "energy")-3000 and
-	    timetostore(ai, "metal", UnitDefs[UnitDefNames["corafus"].id].metalCost) < 240 and
-	    unit:Name() == "coracv"
-	then
-       		if GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id) then
-			local x, y, z = GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id)
-			return {action = "corafus", pos = {x = x, y = y, z = z}}
-		else
-			return "corafus"
-		end
-	elseif income(ai, "energy") > ai.aimodehandler.mintecheincome and
-	    income(ai, "metal") > ai.aimodehandler.mintechmincome and
-	    (UUDC("armfus",ai.id) + UUDC("corfus",ai.id)) < 2 and
-	    Spring.GetTeamRulesParam(ai.id, "mmCapacity") > income(ai, "energy")-1200 and
-	    timetostore(ai, "metal", UnitDefs[UnitDefNames["corfus"].id].metalCost) < 120
-	then
-       		if GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id) then
-			local x, y, z = GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id)
-			return {action = "corfus", pos = {x = x, y = y, z = z}}
-		else
-			return "corfus"
-		end
-	elseif Spring.GetTeamRulesParam(ai.id, "mmCapacity") < income(ai, "energy") then
-       		if GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id) then
-			local x, y, z = GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id)
-			return {action = "cormmkr", pos = {x = x, y = y, z = z}}
-		else
-			return "cormmkr"
-		end
-	else
+	local energyincome = income(ai, "energy")
+	local metalincome = income(ai, "metal")
+	local mmCapacity = Spring.GetTeamRulesParam(ai.id, "mmCapacity")
+	--local energygoal = ((math.max((Spring.GetGameSeconds() / 60) - 5, 1)/6) ^ 2) * 1000
+	local currentenergypercent = curstorperc(ai, "energy")
+	local currentmetalpercent = curstorperc(ai, "metal")
+	local needmetal = currentmetalpercent < 10 and currentenergypercent > 60
+
+	if energyincome < ai.aimodehandler.mintecheincome or metalincome < ai.aimodehandler.mintechmincome then
 		return skip
 	end
+
+	local result = skip
+
+	if currentmetalpercent < 10 and mmCapacity < (energyincome * 0.9) and currentenergypercent > 60 then
+		result =  "cormmkr"
+	else
+		if unit:Name() == "coracv" and energyincome > 2*ai.aimodehandler.mintecheincome and metalincome > 2*ai.aimodehandler.mintechmincome then
+			result = "corafus"
+		else
+			result = "corfus"
+		end
+	end
+
+	if result ~= skip then
+		if GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id) then
+			local x, y, z = GG.AiHelpers.NanoTC.GetClosestNanoTC(unit.id)
+			result = {action = result, pos = {x = x, y = y, z = z}}
+		end
+	end
+
+	return result
 end
 
 function CorMexT1( tqb, ai, unit )
@@ -1722,15 +1692,15 @@ local cort2eco = {
 	CorEnT2,
 	CorEnT2,
 	CorEnT2,
-	CorExpandRandomLab,
-	CorProtection,
-	AADefense,
+	--CorExpandRandomLab,
+	--CorProtection,
+	--AADefense,
 	CorEnT2,
 	CorEnT2,
 	CorEnT2,
-	CorExpandRandomLab,
-	Epic,
-	LolCannon,
+	--CorExpandRandomLab,
+	--Epic,
+	--LolCannon,
 }
 
 local cort2expand = {
