@@ -101,7 +101,7 @@ function defaultBehaviours(unit)
 	u = unit:Internal()
 	table.insert(b, BootBehaviour )
 	if unit:Internal():Name() == "corak" then
-		if math.random(1,5) == 1 then
+		if math.random(1,5) <= 3 then
 			table.insert(b,ScoutsBehaviour)
 		else
 			table.insert(b,RaiderBehaviour)
