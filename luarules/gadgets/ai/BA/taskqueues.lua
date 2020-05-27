@@ -214,13 +214,18 @@ function ReclaimOutdatedUnits(tqb, ai, unit)
 
 	}
 	local nearbyunits = Spring.GetUnitsInSphere(x, y, z, radius)
-	for _, unit in ipairs(nearbyunits) do
-		local unitDefID = Spring.GetUnitDefID(unit)
+	local match = skip
+	for _, nearbyunit in ipairs(nearbyunits) do
+		local unitDefID = Spring.GetUnitDefID(nearbyunit)
 		if Contains(unitDefIdsToReclaim, unitDefID) then
-			return {action = "command", params = { cmdID = CMD.RECLAIM, cmdParams = {unit}, cmdOptions = {"shift"}}}
+			local health, maxhealth = Spring.GetUnitHealth(nearbyunit)
+			match = {action = "command", params = { cmdID = CMD.RECLAIM, cmdParams = {nearbyunit}, cmdOptions = {"shift"}}}
+			if health < maxhealth then
+				return match
+			end
 		end
 	end
-	return skip
+	return match
 end
 
 function ResourceCheck(tqb, ai, unit, name)
