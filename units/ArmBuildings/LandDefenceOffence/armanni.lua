@@ -140,7 +140,7 @@ return {
 				noselfdamage = true,
 				range = 1400,
 				reloadtime = 9.9,
-				rgbcolor = "0 0 1",
+				rgbcolor = "0.6 0 0.6",
 				scrollspeed = 5,
 				soundhitdry = "",
 				soundhitwet = "sizzle",
