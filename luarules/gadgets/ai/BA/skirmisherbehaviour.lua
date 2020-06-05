@@ -141,8 +141,8 @@ function SkirmisherBehaviour:AttackCell(nearestVisibleAcrossMap, nearestVisibleI
 	local currenthealth = unit:GetHealth()
 	local maxhealth = unit:GetMaxHealth()
 	-- Retreating first so we have less data process/only what matters
-	if not (currenthealth >= maxhealth*0.85 or currenthealth > 3000) then
-	local nanotcx, nanotcy, nanotcz = GG.AiHelpers.NanoTC.GetClosestNanoTC(self.unitID)
+	if not (currenthealth >= maxhealth*0.1 or currenthealth > 3000) then
+		local nanotcx, nanotcy, nanotcz = GG.AiHelpers.NanoTC.GetClosestNanoTC(self.unitID)
 		if nanotcx and nanotcy and nanotcz then
 			p = api.Position()
 			p.x, p.y, p.z = nanotcx, nanotcy, nanotcz

@@ -141,7 +141,7 @@ function ArtilleryBehaviour:AttackCell(nearestVisibleAcrossMap, nearestVisibleIn
 	local currenthealth = unit:GetHealth()
 	local maxhealth = unit:GetMaxHealth()
 	-- Retreating first so we have less data process/only what matters
-	if not (currenthealth >= maxhealth*0.95 or currenthealth > 3000) then
+	if not (currenthealth >= maxhealth*0.3 or currenthealth > 3000) then
 	local nanotcx, nanotcy, nanotcz = GG.AiHelpers.NanoTC.GetClosestNanoTC(self.unitID)
 		if nanotcx and nanotcy and nanotcz then
 			p = api.Position()
