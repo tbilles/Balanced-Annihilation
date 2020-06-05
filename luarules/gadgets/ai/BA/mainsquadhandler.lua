@@ -12,7 +12,7 @@ function MainSquadHandler:Init()
 	self.targetPool = {}
 	self.ratio = math.random(1,5)
 	self.squads = {}
-	self.squadmaxsize = 20 -- Smaller size = more cpu usage !
+	self.squadmaxsize = 60 -- Smaller size = more cpu usage !
 end
 
 function Distance(pos1, pos2)
@@ -178,7 +178,12 @@ end
 function MainSquadHandler:AssignToASquad(atkbehaviour)
 	local done = false
 	for i, squad in pairs(self.squads) do
-		if self.squads[i].size < self.squadmaxsize then
+		local unitid = atkbehaviour.unit:Internal().id
+		local x, y, z = Spring.GetUnitPosition(unitid)
+		local unitpos = { x = x, y = y, z = z }
+		local squadposition = self:GetSquadPosition(i)
+		local distance = Distance(unitpos, squadposition)
+		if self.squads[i].size < self.squadmaxsize and distance < 1200 then
 			self.squads[i].units[atkbehaviour.unit:Internal().id] = atkbehaviour
 			self.squads[i].size = self.squads[i].size + 1
 			--Spring.Echo(atkbehaviour.unit:Internal().id.." assigned to squad "..i)
