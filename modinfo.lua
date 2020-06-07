@@ -2,7 +2,7 @@ return {
   name = 'Balanced Annihilation',
   description = 'Balanced Annihilation',
   shortname = 'BA',
-  version = 'V10.24-tbilles~4',
+  version = 'V10.24-tbilles~5',
   mutator = 'Official',
   game = 'Balanced Annihilation',
   shortGame = 'BA',
