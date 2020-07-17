@@ -1786,6 +1786,14 @@ assistqueueconsul = {
 	RequestedAction,
 }
 
+corgantqueue = {
+	Artillery,
+	Skirmisher,
+	Artillery,
+	Raider,
+	Skirmisher,
+}
+
 -------------------
 -- Arm Functions --
 -------------------
@@ -2327,7 +2335,7 @@ taskqueues = {
 	coravp = lab,
 	coraap = airlab,
 	corhp = lab,
-	corgant = lab,
+	corgant = corgantqueue,
 
 	---ARM
 	--constructors

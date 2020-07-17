@@ -39,7 +39,6 @@ artillerylist = {
 	"cortrem",	--	Tremor			/	Heavy Artillery Vehicle
 	"corvroc",	--	Diplomat		/	Stealthy Rocket Launcher
 	"cormh",	--	Nixer			/	Hovercraft Rocket Launcher
-	"corsok",	--	Sokolov			/	Heavy Laser Hovertank
 	"armseer",	--	Seer			/	Radar Vehicle	
 	"corvrad",	--	Informer		/	Radar Vehicle	
 	"armmark",  --  Marky           /   Radar Kbot	
@@ -109,6 +108,7 @@ unusedlist = {
 	"corsjam",	--	Phantom			/	Radar Jammer Ship
 	"corssub",	--	Leviathan		/	Battle Submarine
 	"corshiva",	--	Shiva			/	Amphibious Siege Mech
+	"corsok",	--	Sokolov			/	Heavy Laser Hovertank
 }
 
 otherlist = {

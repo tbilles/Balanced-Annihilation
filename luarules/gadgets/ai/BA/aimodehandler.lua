@@ -47,8 +47,8 @@ end
 
 
 function AiModeHandler:Mode(i)
-	self.perraider = 50
-	self.perskirmer = 40
+	self.perraider = 45
+	self.perskirmer = 35
 	self.nodefenderscounter = math.random(1200,2400)
 	self.noregroupcounter = self.nodefenderscounter + math.random(600,1200)
 	if i == 0 then -- Random mode
