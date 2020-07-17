@@ -181,6 +181,13 @@ local Interest = {
 	corgate = true,
 }
 
+local BombingPreferredTargets = {
+	armanni = true,
+	armgate = true,
+	cordoom = true,
+	corgate = true,
+}
+
 GG.AiHelpers.TargetsOfInterest = {}
 local TargetsOfInterest = {}
 local function IsAntiNukeCovered(unitID, attackerTeamID)
@@ -210,11 +217,17 @@ local function IsInAttackRange(unitID, attackerID)
 	end
 	return false
 end
-	
 
 GG.AiHelpers.TargetsOfInterest.BombingRun = function(teamID)
 	if not TargetsOfInterest[teamID] then return end
 	local target
+	for unitID, isTarget in pairs(TargetsOfInterest[teamID]) do
+		local unitdefname = UnitDefs[Spring.GetUnitDefID(unitID)].name
+		if BombingPreferredTargets[unitdefname] then
+			return unitID
+		end
+	end
+
 	for unitID, isTarget in pairs(TargetsOfInterest[teamID]) do
 		target = unitID
 		break
