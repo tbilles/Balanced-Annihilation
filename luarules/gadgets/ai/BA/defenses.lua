@@ -49,14 +49,20 @@ lolcannonlist= {
 }
 
 antiairlist = {
+	"armaak",
 	"armcir",
 	"armflak",
+	"armjeth",
+	"armyork",
 	"armmercury",
 	"armpacko",
 	"armrl",
+	"coraak",
+	"corcrash",
 	"corerad",
 	"corflak",
 	"cormadsam",
 	"corrl",
 	"corscreamer",
+	"corsent",
 }

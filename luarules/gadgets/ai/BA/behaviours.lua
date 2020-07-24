@@ -126,6 +126,11 @@ function defaultBehaviours(unit)
 	if IsArtillery(unit) then
 		table.insert(b,ArtilleryBehaviour)
 	end
+	if IsAntiAir(unit) then
+		-- There is no anti air behaviour yet, so use artillery. They
+		-- should keep their distance from enemies, adaquate for AA.
+		table.insert(b,ArtilleryBehaviour)
+	end
 	if IsScouts(unit) then
 		table.insert(b,ScoutsBehaviour)
 	end

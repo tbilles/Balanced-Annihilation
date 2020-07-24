@@ -22,6 +22,15 @@ function IsArtillery(unit)
 	return false
 end
 
+function IsAntiAir(unit)
+	for i,name in ipairs(antiairlist) do
+		if name == unit:Internal():Name() then
+			return true
+		end
+	end
+	return false
+end
+
 ArtilleryBehaviour = class(Behaviour)
 
 function ArtilleryBehaviour:Init()
