@@ -4,4 +4,5 @@
 /.svn
 *.py
 *.pyc
+*.swp
 bitmaps/loadpictures/destroyers.jpg
