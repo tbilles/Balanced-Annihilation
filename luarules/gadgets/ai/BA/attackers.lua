@@ -136,6 +136,8 @@ fighterlist = {
 	"armsfig",	--	Tornado			/	Seaplane Swarmer	
 	"armhawk",	--	Hawk			/	Sealth Fighter	
 	"armfig",	-- 	Freedom Fighter /	Fighter
+	-- Krow is not a fighter, but gunships are currently unused and have no behaviour
+	"corcrw",	--	Krow			/	Flying Fortress	
 }
 
 mobileaalist = {
